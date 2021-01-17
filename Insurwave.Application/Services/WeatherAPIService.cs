@@ -34,7 +34,7 @@ namespace Insurwave.Application.Services
             _weatherAPIKey = _configuration["WeatherAPIKey"];
         }
 
-        public async Task<Weather> GetCurrentWeather(string city)
+        public async Task<Weather> GetCurrentWeather(string city, TemperatureMeasurement? temperatureMeasurement)
         {
             Weather response = null;
 
@@ -48,7 +48,7 @@ namespace Insurwave.Application.Services
                 using (HttpClient httpClient = _httpClientFactory.CreateClient())
                 {
                     httpClient.BaseAddress = new Uri(_weatherAPIBaseUrl);
-                    response = await GetCurrentWeather(city, httpClient);
+                    response = await GetCurrentWeather(city, temperatureMeasurement, httpClient);
                 }
             }
 
@@ -60,18 +60,21 @@ namespace Insurwave.Application.Services
             return response;
         }
 
-        private async Task<Weather> GetCurrentWeather(string city, HttpClient httpClient)
+
+        private async Task<Weather> GetCurrentWeather(string city, TemperatureMeasurement? temperatureMeasurement, HttpClient httpClient)
         {
             Weather weather = null;
             using (HttpResponseMessage currentResponse = await httpClient.GetAsync($"current.json?key={_weatherAPIKey}&q={city}"))
             {
                 if (currentResponse.StatusCode == HttpStatusCode.OK)
                 {
+                    double temperature;
                     var currentWeatherResult = await currentResponse.Content.ReadAsStringAsync();
                     var result = JsonConvert.DeserializeObject<WeatherAPIResponse>(currentWeatherResult);
 
                     if (result != null)
                     {
+                        temperature = GetTemperatureMeasurement(temperatureMeasurement, result.Current);
 
                         weather = new Weather()
                         {
@@ -79,7 +82,7 @@ namespace Insurwave.Application.Services
                             Region = result.Location.Region,
                             Country = result.Location.Country,
                             LocalTime = result.Location.Localtime,
-                            Temperature = result.Current.Temp_c
+                            Temperature = temperature
                         };
                         return weather;
                     }
@@ -88,5 +91,26 @@ namespace Insurwave.Application.Services
             return weather;
         }
 
+        private static double GetTemperatureMeasurement(TemperatureMeasurement? temperatureMeasurement, Current result)
+        {
+            double temperature;
+
+            switch (temperatureMeasurement)
+            {
+                case TemperatureMeasurement.C:
+                     temperature = result.Temp_c;
+                    break;
+
+                case TemperatureMeasurement.F:
+                    temperature = result.Temp_f;
+                    break;
+
+                default:
+                    temperature = result.Temp_c;
+                    break;
+            }
+
+            return temperature;
+        }
     }
 }

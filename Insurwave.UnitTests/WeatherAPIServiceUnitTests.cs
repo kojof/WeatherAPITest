@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -25,6 +26,9 @@ namespace Insurwave.UnitTests
         private Mock<IConfiguration> _configuration;
         private Mock<IHttpClientFactory> _mockHttpClientFactory;
         private string _city = "london";
+        private TemperatureMeasurement _temperatureMeasurement = TemperatureMeasurement.C;
+        private double _temperatureFahrenheitMeasurement = 41;
+        private double _temperatureCelciusMeasurement = 5.0;
         private string _weatherAPIBaseUrl = "https://api.weatherapi.com/v1/";
         private string _weatherAPIKey;
 
@@ -35,16 +39,73 @@ namespace Insurwave.UnitTests
             _logger = new Mock<ILogger<WeatherAPIService>>();
             _configuration = new Mock<IConfiguration>();
             _mockHttpClientFactory = new Mock<IHttpClientFactory>();
+
+
         }
 
         [TestInitialize]
         public void Init()
         {
-          
+       
         }
 
         [TestMethod]
-        public async Task GetCurrentWeather_ValidInput_ReturnValidResult()
+        public async Task GetCurrentWeather_ValidInput_Return_ValidResult()
+        {
+            SetupHttpClient();
+            _sut = new WeatherAPIService(_logger.Object, _mockHttpClientFactory.Object, _configuration.Object);
+
+            var response = await _sut.GetCurrentWeather(_city, _temperatureMeasurement);
+            Assert.IsNotNull(response);
+            Assert.AreEqual(response.City, _city);
+        }
+
+
+        [TestMethod]
+        public async Task GetCurrentWeather_ValidInput_With_CelciusTemperature_Return_ValidResult()
+        {
+            SetupHttpClient();
+            _sut = new WeatherAPIService(_logger.Object, _mockHttpClientFactory.Object, _configuration.Object);
+            var response = await _sut.GetCurrentWeather(_city, TemperatureMeasurement.C);
+            Assert.IsNotNull(response);
+            Assert.AreEqual(response.Temperature, _temperatureCelciusMeasurement);
+        }
+
+       
+
+        [TestMethod]
+        public async Task GetCurrentWeather_ValidInput_With_FahrenheitTemperature_Return_ValidResult()
+        {
+            SetupHttpClient();
+            _sut = new WeatherAPIService(_logger.Object, _mockHttpClientFactory.Object, _configuration.Object);
+
+            var response = await _sut.GetCurrentWeather(_city, TemperatureMeasurement.F);
+            Assert.IsNotNull(response);
+            Assert.AreEqual(response.Temperature, _temperatureFahrenheitMeasurement);
+        }
+
+        [TestMethod]
+        public async Task GetCurrentWeather_InValidInput_Without_Temperature_Return_ValidResult()
+        {
+            SetupHttpClient();
+            _sut = new WeatherAPIService(_logger.Object, _mockHttpClientFactory.Object, _configuration.Object);
+            var response = await _sut.GetCurrentWeather(_city, null);
+            Assert.IsNotNull(response);
+            Assert.AreEqual(response.Temperature, _temperatureCelciusMeasurement);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException), "Invalid Search Criteria.")]
+        public async Task GetCurrentWeather_InValidInput_City_Return_ThrowsException()
+        {
+            SetupHttpClient();
+            _sut = new WeatherAPIService(_logger.Object, _mockHttpClientFactory.Object, _configuration.Object);
+            var response = await _sut.GetCurrentWeather("", null);
+        }
+
+
+        #region Private Methods
+        private void SetupHttpClient()
         {
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
             mockHttpMessageHandler.Protected()
@@ -53,7 +114,7 @@ namespace Insurwave.UnitTests
                 .ReturnsAsync(new HttpResponseMessage
                 {
                     StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(JsonConvert.SerializeObject(GetResponse())),
+                    Content = new StringContent(JsonConvert.SerializeObject(GetWeatherAPIResponse())),
                 });
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
@@ -64,23 +125,18 @@ namespace Insurwave.UnitTests
             _configuration.SetupGet(x => x[It.Is<string>(s => s == "WeatherAPIKey")])
                 .Returns("b5acceae06b644e3a16224434211101");
 
-            
+
             httpClient.BaseAddress = weatherAPIBaseUrl;
             _mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
-            _sut = new WeatherAPIService(_logger.Object, _mockHttpClientFactory.Object, _configuration.Object);
-
-            var response = await _sut.GetCurrentWeather(_city);
-            Assert.IsNotNull(response);
-            Assert.AreEqual(response.City, _city);
+         
         }
 
-
-        private WeatherAPIResponse GetResponse()
+        private WeatherAPIResponse GetWeatherAPIResponse()
         {
             var current = new Current
             {
-                Temp_c = 5.0,
-                Temp_f = 41
+                Temp_c = _temperatureCelciusMeasurement,
+                Temp_f = _temperatureFahrenheitMeasurement
             };
 
             var location = new Location
@@ -99,5 +155,7 @@ namespace Insurwave.UnitTests
 
             return weatherAPIResponse;
         }
+
+        #endregion
     }
 }

@@ -31,7 +31,7 @@ namespace Insurwave.WebAPI.Controllers
        
         [HttpGet()]
         [Route("GetCurrentWeather")]
-        public async Task<IActionResult> GetCurrentWeather(string city)
+        public async Task<IActionResult> GetCurrentWeather(string city, TemperatureMeasurement? temperatureMeasurement = TemperatureMeasurement.C)
         {
 
             if (string.IsNullOrEmpty(city))
@@ -41,7 +41,7 @@ namespace Insurwave.WebAPI.Controllers
 
             try
             {
-                var response = await _weatherAPIService.GetCurrentWeather(city);
+                var response = await _weatherAPIService.GetCurrentWeather(city, temperatureMeasurement);
                 return Ok(response);
             }
 

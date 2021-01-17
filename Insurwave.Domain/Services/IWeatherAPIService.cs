@@ -9,6 +9,6 @@ namespace Insurwave.Domain.Services
 {
     public interface IWeatherAPIService
     {
-        Task<Weather> GetCurrentWeather(string city);
+        Task<Weather> GetCurrentWeather(string city, TemperatureMeasurement? temperatureMeasurement);
     }
 }
