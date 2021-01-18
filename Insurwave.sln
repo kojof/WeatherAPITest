@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Insurwave.Application", "In
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Insurwave.Domain", "Insurwave.Domain\Insurwave.Domain.csproj", "{9E82BB4A-1ACF-45CA-A30B-5E3B4EB2D532}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Insurwave.UnitTests", "Insurwave.UnitTests\Insurwave.UnitTests.csproj", "{70E27598-8F14-4209-B431-89CB832C32DD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Insurwave.UnitTests", "Insurwave.UnitTests\Insurwave.UnitTests.csproj", "{70E27598-8F14-4209-B431-89CB832C32DD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Insurwave.IntegrationTests", "Insurwave.IntegrationTests\Insurwave.IntegrationTests.csproj", "{828868FA-387D-41C8-9C4A-B0689921A814}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{70E27598-8F14-4209-B431-89CB832C32DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{70E27598-8F14-4209-B431-89CB832C32DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{70E27598-8F14-4209-B431-89CB832C32DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{828868FA-387D-41C8-9C4A-B0689921A814}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{828868FA-387D-41C8-9C4A-B0689921A814}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{828868FA-387D-41C8-9C4A-B0689921A814}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{828868FA-387D-41C8-9C4A-B0689921A814}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

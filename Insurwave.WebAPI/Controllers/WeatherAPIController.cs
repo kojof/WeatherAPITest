@@ -30,8 +30,8 @@ namespace Insurwave.WebAPI.Controllers
 
        
         [HttpGet()]
-        [Route("GetCurrentWeather")]
-        public async Task<IActionResult> GetCurrentWeather(string city, TemperatureMeasurement? temperatureMeasurement = TemperatureMeasurement.C)
+        [Route("Get")]
+        public async Task<IActionResult> Get(string city, TemperatureMeasurement? temperatureMeasurement = TemperatureMeasurement.C)
         {
 
             if (string.IsNullOrEmpty(city))
@@ -47,7 +47,7 @@ namespace Insurwave.WebAPI.Controllers
 
             catch (HttpRequestException httpRequestException)
             {
-                _logger.LogError("Error in GetCurrentWeather method: ", httpRequestException.StackTrace);
+                _logger.LogError("Error in Get method: ", httpRequestException.StackTrace);
                 return BadRequest($"Error getting weather from WeatherAPI: {httpRequestException.Message}");
             }
 
