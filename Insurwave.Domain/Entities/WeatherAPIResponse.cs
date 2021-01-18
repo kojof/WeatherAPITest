@@ -8,6 +8,22 @@ namespace Insurwave.Domain.Entities
     {
         public Location Location { get; set; }
         public Current Current { get; set; }
+        public Astronomy Astronomy { get; set; }
+    }
+
+    public class Astro
+    {
+        public string Sunrise { get; set; }
+        public string Sunset { get; set; }
+        public string Moonrise { get; set; }
+        public string Moonset { get; set; }
+        public string Moon_phase { get; set; }
+        public string Moon_illumination { get; set; }
+    }
+
+    public class Astronomy
+    {
+        public Astro Astro { get; set; }
     }
 
 

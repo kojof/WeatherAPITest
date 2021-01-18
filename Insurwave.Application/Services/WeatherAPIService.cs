@@ -49,17 +49,51 @@ namespace Insurwave.Application.Services
                 {
                     httpClient.BaseAddress = new Uri(_weatherAPIBaseUrl);
                     response = await GetCurrentWeather(city, temperatureMeasurement, httpClient);
+
+                    if (response != null)
+                    {
+                        var astronomyWeatherResponse = await GetAstronomyWeather(city, httpClient);
+
+                        if (astronomyWeatherResponse != null)
+                        {
+                            response.Sunset = astronomyWeatherResponse.Sunrise;
+                            response.Sunrise = astronomyWeatherResponse.Sunset;
+                            return response;
+                        }
+                    }
                 }
             }
 
             catch (Exception ex)
             {
-              _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, ex.Message);
             }
 
             return response;
         }
+    
 
+
+    private async Task<Weather> GetAstronomyWeather(string city, HttpClient httpClient)
+    {
+        Weather weather = null;
+            using (HttpResponseMessage response = await httpClient.GetAsync($"astronomy.json?key={_weatherAPIKey}&q={city}"))
+            {
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    var astronomyResult = await response.Content.ReadAsStringAsync();
+                    var result = JsonConvert.DeserializeObject<WeatherAPIResponse>(astronomyResult);
+                    if (result != null)
+                        weather = new Weather()
+                        {
+                            Sunrise = result.Astronomy.Astro.Sunrise,
+                            Sunset = result.Astronomy.Astro.Sunset
+                        };
+                    return weather;
+                }
+            }
+            return weather;
+        }
 
         private async Task<Weather> GetCurrentWeather(string city, TemperatureMeasurement? temperatureMeasurement, HttpClient httpClient)
         {

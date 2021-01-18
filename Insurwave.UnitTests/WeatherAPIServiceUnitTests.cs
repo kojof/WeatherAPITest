@@ -29,6 +29,8 @@ namespace Insurwave.UnitTests
         private TemperatureMeasurement _temperatureMeasurement = TemperatureMeasurement.C;
         private double _temperatureFahrenheitMeasurement = 41;
         private double _temperatureCelciusMeasurement = 5.0;
+        private string _sunset = "07:57 AM";
+        private string _sunrise = "04:26 PM";
         private string _weatherAPIBaseUrl = "https://api.weatherapi.com/v1/";
         private string _weatherAPIKey;
 
@@ -103,6 +105,17 @@ namespace Insurwave.UnitTests
             var response = await _sut.GetCurrentWeather("", null);
         }
 
+        [TestMethod]
+        public async Task GetCurrentWeather_ValidInput_Check_AstronomyInfo__IsValid_Return_ValidResult()
+        {
+            SetupHttpClient();
+            _sut = new WeatherAPIService(_logger.Object, _mockHttpClientFactory.Object, _configuration.Object);
+            var response = await _sut.GetCurrentWeather(_city, TemperatureMeasurement.C);
+            Assert.IsNotNull(response);
+            Assert.AreEqual(response.Sunset, _sunset);
+            Assert.AreEqual(response.Sunrise, _sunrise);
+        }
+
 
         #region Private Methods
         private void SetupHttpClient()
@@ -147,10 +160,23 @@ namespace Insurwave.UnitTests
                 Region = "City of London, Greater London"
             };
 
+            var astro  = new Astro()
+            {
+               Sunset = _sunset,
+               Sunrise = _sunrise
+            };
+
+            var astronomy = new Astronomy
+            {
+                Astro = astro
+            };
+
+
             var weatherAPIResponse = new WeatherAPIResponse()
             {
                 Current = current,
-                Location = location
+                Location = location,
+                Astronomy = astronomy
             };
 
             return weatherAPIResponse;
